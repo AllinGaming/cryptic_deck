@@ -1,8 +1,10 @@
 # Cryptic Deck
 
-![coverage](https://img.shields.io/badge/coverage-84.6%25-brightgreen)
+![coverage](https://img.shields.io/badge/coverage-84.6%25-brightgreen) [![Pages deploy](https://github.com/AllinGaming/cryptic_deck/actions/workflows/deploy.yml/badge.svg)](https://github.com/AllinGaming/cryptic_deck/actions/workflows/deploy.yml)
 
-A pure-Widget Inscryption-inspired roguelike deckbuilder built with Flutter. No external art assets — everything is drawn with Flutter UI.
+[Play in the browser](https://allingaming.github.io/cryptic_deck/)
+
+A pure-Widget Inscryption-inspired roguelike deckbuilder built with Flutter. No external art assets—everything is drawn with Flutter UI.
 
 ## What it is
 - Lane-based battles (4 lanes each side) using blood/bones costs, sacrifices, and a damage scale win condition.
@@ -11,7 +13,7 @@ A pure-Widget Inscryption-inspired roguelike deckbuilder built with Flutter. No 
 - Built with `provider`, modular core logic (`lib/core`) and UI (`lib/ui`).
 
 ## Quick rules
-- Goal: push the damage scale to +5 to win (at -5 you lose). HUD shows both sides’ HP equivalents.
+- Goal: push the damage scale to +5 to win (at -5 you lose). HUD shows both sides' HP equivalents.
 - Costs: blood cards need sacrifices on your board; bone cards cost bones (gain 1 each turn + from deaths).
 - Turn: auto-draw at start, play from hand to lanes, then `End Turn` to resolve attacks.
 - Abilities: Flying (hits directly), Bifurcated (adjacent lanes), Guard (-1 dmg), Poison (kill on hit), Undying (returns to discard).
