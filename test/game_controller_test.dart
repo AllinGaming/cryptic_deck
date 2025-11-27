@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cryptic_deck/core/game_controller.dart';
-import 'package:cryptic_deck/core/map_node.dart';
 import 'package:cryptic_deck/core/battle_engine.dart';
 
 void main() {
