@@ -49,13 +49,18 @@ class _BattleScreenState extends State<BattleScreen> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Column(
-                  children: [
-                    _BattleHud(battle: battle),
-                    _BoardRow(
-                      label: 'Enemy Row (damage toward you)',
-                      slots: battle.board.enemySlots,
-                      onTapLane: null,
-                      isPlayerRow: false,
+          children: [
+            _BattleHud(battle: battle),
+            if (battle.resolving)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 6),
+                child: LinearProgressIndicator(minHeight: 4),
+              ),
+            _BoardRow(
+              label: 'Enemy Row (damage toward you)',
+              slots: battle.board.enemySlots,
+              onTapLane: null,
+              isPlayerRow: false,
                     ),
                     const Divider(height: 1, color: Colors.white24),
                     _BoardRow(
@@ -76,19 +81,19 @@ class _BattleScreenState extends State<BattleScreen> {
                     ),
                     const SizedBox(height: 6),
                     _LogArea(log: battle.log),
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: battle.battleOver ? null : battle.endPlayerTurn,
-                            child: const Text('End Turn'),
-                          ),
-                          if (battle.battleOver)
-                            ElevatedButton(
-                              onPressed: controller.onBattleFinished,
-                              child: const Text('Return to Map'),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: battle.battleOver || battle.resolving ? null : battle.endPlayerTurn,
+                    child: Text(battle.resolving ? 'Resolving...' : 'End Turn'),
+                  ),
+                  if (battle.battleOver)
+                    ElevatedButton(
+                      onPressed: controller.onBattleFinished,
+                      child: const Text('Return to Map'),
                             ),
                         ],
                       ),
@@ -118,7 +123,7 @@ class _BattleScreenState extends State<BattleScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
       builder: (ctx) {
-        return Padding(
+        return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -336,7 +341,7 @@ class _HandArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 170, maxHeight: 190),
+      constraints: const BoxConstraints(minHeight: 200, maxHeight: 220),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -347,7 +352,7 @@ class _HandArea extends StatelessWidget {
             card: card.definition,
             atk: card.currentAtk,
             hp: card.currentHp,
-            height: 170,
+            height: 200,
             selected: selected?.instanceId == card.instanceId,
             onTap: battle.battleOver ? null : () => onSelect(card),
           );

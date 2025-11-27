@@ -62,6 +62,17 @@ class CardInstance {
 class CardLibrary {
   static final List<CardDefinition> cards = [
     CardDefinition(
+      id: 'phoenix',
+      name: 'Phoenix',
+      attack: 0,
+      health: 1,
+      costType: CardCostType.bones,
+      costAmount: 2,
+      abilities: const [CardAbility.undying],
+      tribe: CardTribe.undead,
+      description: 'Returns to discard when it dies.',
+    ),
+    CardDefinition(
       id: 'squirrel',
       name: 'Squirrel',
       attack: 0,

@@ -35,6 +35,7 @@ class BattleState extends ChangeNotifier {
   bool playerWon = false;
   String status = 'Battle start. Draw or play.';
   final List<String> log = [];
+  bool resolving = false;
 
   void _setupPiles() {
     playerBones = run.bonesBonus;
@@ -141,13 +142,21 @@ class BattleState extends ChangeNotifier {
   void endPlayerTurn() {
     if (battleOver) return;
     playerTurn = false;
+    resolving = true;
     status = 'Resolving attacks...';
     _pushLog('You end turn. Attacks resolve.');
     _resolveCombat(fromPlayer: true);
-    if (_checkVictory()) return;
+    if (_checkVictory()) {
+      resolving = false;
+      return;
+    }
     _enemyMainPhase();
-    if (_checkVictory()) return;
+    if (_checkVictory()) {
+      resolving = false;
+      return;
+    }
     _resolveCombat(fromPlayer: false);
+    resolving = false;
     if (_checkVictory()) return;
     _startPlayerTurn();
   }

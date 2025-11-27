@@ -31,7 +31,7 @@ class CardView extends StatelessWidget {
         margin: const EdgeInsets.all(6),
         padding: const EdgeInsets.all(10),
         height: height,
-        width: height * 0.7,
+        width: (height * 0.8).clamp(140, 220),
         decoration: BoxDecoration(
           color: color.withAlpha((255 * 0.15).round()),
           borderRadius: BorderRadius.circular(12),
@@ -50,26 +50,20 @@ class CardView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Expanded(
+                ConstrainedBox(
+                  constraints: const BoxConstraints(minWidth: 80, maxWidth: 140),
                   child: Text(
                     card.name,
                     style: Theme.of(context).textTheme.titleMedium,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Align(
-                    alignment: Alignment.topRight,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: _CostBadge(card: card, color: color),
-                    ),
-                  ),
-                ),
+                _CostBadge(card: card, color: color),
               ],
             ),
             const SizedBox(height: 8),
@@ -88,8 +82,9 @@ class CardView extends StatelessWidget {
                     ?.copyWith(color: Colors.amberAccent.shade100),
               ),
             const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
               children: [
                 _StatPill(label: 'ATK', value: (atk ?? card.attack).toString()),
                 _StatPill(label: 'HP', value: (hp ?? card.health).toString()),
@@ -168,10 +163,11 @@ class _StatPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.white24),
       ),
-      child: Row(
+      child: Wrap(
+        spacing: 6,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(label, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(width: 6),
           Text(value, style: Theme.of(context).textTheme.bodyMedium),
         ],
       ),

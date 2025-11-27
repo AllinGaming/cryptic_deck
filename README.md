@@ -1,16 +1,24 @@
-# cryptic_deck
+# Cryptic Deck
 
-A new Flutter project.
+![coverage](https://img.shields.io/badge/coverage-84.6%25-brightgreen)
 
-## Getting Started
+A pure-Widget Inscryption-inspired roguelike deckbuilder built with Flutter. No external art assets — everything is drawn with Flutter UI.
 
-This project is a starting point for a Flutter application.
+## What it is
+- Lane-based battles (4 lanes each side) using blood/bones costs, sacrifices, and a damage scale win condition.
+- Node map with events (battles, campfire, trader, sacrifice, totem, boss).
+- Starter deck includes free squirrels (sacrifice fodder) plus attack cards; bones drip in each turn to enable bone-cost plays.
+- Built with `provider`, modular core logic (`lib/core`) and UI (`lib/ui`).
 
-A few resources to get you started if this is your first Flutter project:
+## Quick rules
+- Goal: push the damage scale to +5 to win (at -5 you lose). HUD shows both sides’ HP equivalents.
+- Costs: blood cards need sacrifices on your board; bone cards cost bones (gain 1 each turn + from deaths).
+- Turn: auto-draw at start, play from hand to lanes, then `End Turn` to resolve attacks.
+- Abilities: Flying (hits directly), Bifurcated (adjacent lanes), Guard (-1 dmg), Poison (kill on hit), Undying (returns to discard).
+- Events: Campfire buffs HP/ATK, Trader gives a card, Sacrifice adds run ATK buff, Totem adds +1 bones per battle.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Project structure
+- `lib/core/` — cards, board state, battle engine, run/map state, controller.
+- `lib/ui/screens/` — menu, map, battle screens with in-app help.
+- `lib/ui/widgets/` — reusable card view.
+- `test/` — unit tests for battle logic, map generation, and app smoke test.
