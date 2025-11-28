@@ -148,19 +148,23 @@ class BattleState extends ChangeNotifier {
     notifyListeners();
     _resolveCombat(fromPlayer: true);
     if (_checkVictory()) {
-      resolving = false;
+      _finishResolution();
       return;
     }
     _enemyMainPhase();
     if (_checkVictory()) {
-      resolving = false;
+      _finishResolution();
       return;
     }
     _resolveCombat(fromPlayer: false);
-    resolving = false;
-    notifyListeners();
+    _finishResolution();
     if (_checkVictory()) return;
     _startPlayerTurn();
+  }
+
+  void _finishResolution() {
+    resolving = false;
+    notifyListeners();
   }
 
   void _enemyMainPhase() {
