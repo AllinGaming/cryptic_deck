@@ -23,95 +23,104 @@ class _BattleScreenState extends State<BattleScreen> {
     if (battle == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Battle - Turn ${battle.turn}'),
-        actions: [
-          IconButton(
-            onPressed: () => _showHelp(context),
-            icon: const Icon(Icons.help_outline),
-            tooltip: 'Battle help',
+    return AnimatedBuilder(
+      animation: battle,
+      builder: (context, _) {
+        final isEnemyActing = battle.resolving || !battle.playerTurn;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Battle - Turn ${battle.turn}'),
+            actions: [
+              IconButton(
+                onPressed: () => _showHelp(context),
+                icon: const Icon(Icons.help_outline),
+                tooltip: 'Battle help',
+              ),
+              IconButton(
+                onPressed: () {
+                  battle.concede();
+                  controller.onBattleFinished();
+                },
+                icon: const Icon(Icons.flag),
+                tooltip: 'Concede',
+              )
+            ],
           ),
-          IconButton(
-            onPressed: () {
-              battle.concede();
-              controller.onBattleFinished();
-            },
-            icon: const Icon(Icons.flag),
-            tooltip: 'Concede',
-          )
-        ],
-      ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Column(
-          children: [
-            _BattleHud(battle: battle),
-            if (battle.resolving)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 6),
-                child: LinearProgressIndicator(minHeight: 4),
-              ),
-            _BoardRow(
-              label: 'Enemy Row (damage toward you)',
-              slots: battle.board.enemySlots,
-              onTapLane: null,
-              isPlayerRow: false,
+          body: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Column(
+                      children: [
+                        _BattleHud(battle: battle),
+                        if (isEnemyActing)
+                          const _TurnStatusBanner(),
+                        if (battle.resolving)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 6),
+                            child: LinearProgressIndicator(minHeight: 4),
+                          ),
+                        _BoardRow(
+                          label: 'Enemy Row (damage toward you)',
+                          slots: battle.board.enemySlots,
+                          onTapLane: null,
+                          isPlayerRow: false,
+                        ),
+                        const Divider(height: 1, color: Colors.white24),
+                        _BoardRow(
+                          label: 'Your Row (tap a slot to place selected card)',
+                          slots: battle.board.playerSlots,
+                          onTapLane: (lane) {
+                            if (_selected == null) return;
+                            final placed = battle.playCardToLane(_selected!, lane);
+                            if (placed) setState(() => _selected = null);
+                          },
+                          isPlayerRow: true,
+                          highlightedLane: _selected != null ? -1 : null,
+                        ),
+                        _HandArea(
+                          battle: battle,
+                          selected: _selected,
+                          onSelect: (card) => setState(() => _selected = card),
+                        ),
+                        const SizedBox(height: 6),
+                        _LogArea(log: battle.log),
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                onPressed:
+                                    battle.battleOver || battle.resolving ? null : battle.endPlayerTurn,
+                                child: Text(battle.resolving ? 'Resolving...' : 'End Turn'),
+                              ),
+                              if (battle.battleOver)
+                                ElevatedButton(
+                                  onPressed: controller.onBattleFinished,
+                                  child: const Text('Return to Map'),
+                                ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            battle.status,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      ],
                     ),
-                    const Divider(height: 1, color: Colors.white24),
-                    _BoardRow(
-                      label: 'Your Row (tap a slot to place selected card)',
-                      slots: battle.board.playerSlots,
-                      onTapLane: (lane) {
-                        if (_selected == null) return;
-                        final placed = battle.playCardToLane(_selected!, lane);
-                        if (placed) setState(() => _selected = null);
-                      },
-                      isPlayerRow: true,
-                      highlightedLane: _selected != null ? -1 : null,
-                    ),
-                    _HandArea(
-                      battle: battle,
-                      selected: _selected,
-                      onSelect: (card) => setState(() => _selected = card),
-                    ),
-                    const SizedBox(height: 6),
-                    _LogArea(log: battle.log),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: battle.battleOver || battle.resolving ? null : battle.endPlayerTurn,
-                    child: Text(battle.resolving ? 'Resolving...' : 'End Turn'),
                   ),
-                  if (battle.battleOver)
-                    ElevatedButton(
-                      onPressed: controller.onBattleFinished,
-                      child: const Text('Return to Map'),
-                            ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        battle.status,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -238,6 +247,41 @@ class _BattleHud extends StatelessWidget {
   }
 }
 
+class _TurnStatusBanner extends StatelessWidget {
+  const _TurnStatusBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white10,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.computer, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Enemy turn in progress. Sit tight while attacks resolve.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+          const SizedBox(width: 8),
+          const SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2.2),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _BoardRow extends StatelessWidget {
   const _BoardRow({
     required this.label,
@@ -308,7 +352,7 @@ class _BoardRow extends StatelessWidget {
                                 children: [
                                   Text(card.definition.name, overflow: TextOverflow.ellipsis),
                                   const SizedBox(height: 4),
-                                  Text('ATK ${card.currentAtk} • HP ${card.currentHp}'),
+                                  Text('ATK ${card.currentAtk} / HP ${card.currentHp}'),
                                   Text(
                                     card.definition.abilities.isEmpty
                                         ? 'No ability'

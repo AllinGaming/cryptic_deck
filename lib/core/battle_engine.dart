@@ -143,8 +143,9 @@ class BattleState extends ChangeNotifier {
     if (battleOver) return;
     playerTurn = false;
     resolving = true;
-    status = 'Resolving attacks...';
+    status = 'Resolving attacks... (enemy turn)';
     _pushLog('You end turn. Attacks resolve.');
+    notifyListeners();
     _resolveCombat(fromPlayer: true);
     if (_checkVictory()) {
       resolving = false;
@@ -157,11 +158,14 @@ class BattleState extends ChangeNotifier {
     }
     _resolveCombat(fromPlayer: false);
     resolving = false;
+    notifyListeners();
     if (_checkVictory()) return;
     _startPlayerTurn();
   }
 
   void _enemyMainPhase() {
+    status = 'Enemy playing cards...';
+    notifyListeners();
     _drawCard(toPlayer: false);
     for (final card in List<CardInstance>.from(enemyHand)) {
       final lane = _findOpenEnemyLane();
@@ -171,6 +175,8 @@ class BattleState extends ChangeNotifier {
       _pushLog('Enemy played ${card.definition.name} to lane ${lane + 1}.');
       break;
     }
+    status = 'Enemy resolved cards.';
+    notifyListeners();
   }
 
   int _findOpenEnemyLane() {
